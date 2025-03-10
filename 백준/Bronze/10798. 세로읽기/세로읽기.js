@@ -1,9 +1,15 @@
-const words = require("fs").readFileSync("/dev/stdin").toString().trim().split("\n");
-const maxLength = Math.max(...words.map(i => i.length));
-let vertical = "";
-for (let i=0; i<maxLength; i++) {
-    for (let j=0; j<words.length; j++) {
-        vertical += words[j][i] || "";
+const fs = require('fs');
+const filePath = process.platform === 'linux' ? '/dev/stdin' : './input.txt';
+let input = fs.readFileSync(filePath).toString().trim().split('\n').map(item=>item.trim());
+
+let answer = '';
+let lenarr = input.map(item=>item.length);
+let maxlen = Math.max(...lenarr);
+
+for (let i=0; i<maxlen;i++){
+    for (let j=0; j<input.length;j++){
+        answer += input[j][i] ||  '';
     }
 }
-console.log(vertical);
+
+console.log(answer);

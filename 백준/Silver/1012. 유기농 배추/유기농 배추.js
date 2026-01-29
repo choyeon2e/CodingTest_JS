@@ -1,40 +1,56 @@
+"use strict";
+
 const fs = require("fs");
-const filePath = process.platform === "linux" ? "/dev/stdin" : "./input.txt";
-const input = fs.readFileSync(filePath).toString().trim().split("\n");
+const input = fs
+  .readFileSync(process.platform === "linux" ? "/dev/stdin" : "./input.txt")
+  .toString()
+  .trim()
+  .split("\n");
 
-let T = +input[0];
-let line = 1;
+let line = 0;
+const T = +input[line++];
 
-const dy = [-1, 1, 0, 0]; //y축 이동값
-const dx = [0, 0, -1, 1]; //x축 이동값
+// 상하좌우
+const dy = [-1, 1, 0, 0];
+const dx = [0, 0, -1, 1];
 
-function dfs(y, x, N, M, graph) {
-  graph[y][x] = 0; //방문 했으므로
+function Dfs(y, x, N, M, matrix, visited) {
+  visited[y][x] = true;
+
   for (let i = 0; i < 4; i++) {
     const ny = y + dy[i];
     const nx = x + dx[i];
-    if (ny >= 0 && ny < N && nx >= 0 && nx < M && graph[ny][nx] === 1) {
-      dfs(ny, nx, N, M, graph);
+
+    if (ny >= 0 && ny < N && nx >= 0 && nx < M) {
+      if (matrix[ny][nx] === 1 && !visited[ny][nx]) {
+        Dfs(ny, nx, N, M, matrix, visited);
+      }
     }
   }
 }
 
-while (T--) {
-  const [M, N, K] = input[line].split(" ").map(Number);
-  const graph = Array.from({ length: N }, () => Array(M).fill(0));
-  for (let i = 1; i <= K; i++) {
-    const [x, y] = input[line + i].split(" ").map(Number);
-    graph[y][x] = 1; //배추 있는 위치
-  }
-  let worm = 0;
-  for (let i = 0; i < N; i++) {
-    for (let j = 0; j < M; j++) {
-      if (graph[i][j] === 1) {
-        dfs(i, j, N, M, graph);
-        worm++;
+for (let t = 0; t < T; t++) {
+  const [M, N, K] = input[line++].split(" ").map(Number);
+  const cabbagePositions = input
+    .slice(line, line + K)
+    .map((row) => row.split(" ").map(Number));
+  line += K;
+
+  const matrix = Array.from({ length: N }, () => new Array(M).fill(0));
+  const visited = Array.from({ length: N }, () => new Array(M).fill(false));
+
+  cabbagePositions.forEach(([x, y]) => {
+    matrix[y][x] = 1;
+  });
+
+  let count = 0;
+  for (let y = 0; y < N; y++) {
+    for (let x = 0; x < M; x++) {
+      if (matrix[y][x] === 1 && !visited[y][x]) {
+        Dfs(y, x, N, M, matrix, visited);
+        count++;
       }
     }
   }
-  console.log(worm);
-  line += K + 1;
+  console.log(count);
 }

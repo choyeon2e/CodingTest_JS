@@ -8,38 +8,19 @@ const input = fs
   .split("\n");
 
 const N = +input[0];
-const cardArr = input[1].split(" ").map(Number).sort((a,b)=>a-b);
+const cardArr = input[1].split(" ").map(Number); 
 
 const M = +input[2];
 const mArr = input[3].split(" ").map(Number);
 
-const result= [];
+const cardMap = new Map();
 
-function lowerBound(arr,target){
-  let left=0;
-  let right = arr.length;
-  while (left <right){
-    let mid = Math.floor((left+right)/2);
-    if (arr[mid]>=target) right=mid;
-    else left = mid+1;
-  }
-  return left;
+for (let i = 0; i < N; i++) {
+  const card = cardArr[i];
+  // 이미 카드가 있다면 기존 값에 +1, 없으면 1 저장
+  cardMap.set(card, (cardMap.get(card) || 0) + 1);
 }
 
-function upperBound(arr,target){
-  let left=0;
-  let right=arr.length;
-  while (left<right){
-    let mid = Math.floor((left+right)/2);
-    if (arr[mid]>target) right=mid;
-    else left = mid+1;
-  }
-  return left;
-}
-
-for (let i=0; i<M; i++){
-  const count = upperBound(cardArr, mArr[i]) - lowerBound(cardArr, mArr[i]);
-  result.push(count);
-}
+const result = mArr.map(num => cardMap.get(num) || 0);
 
 console.log(result.join(" "));

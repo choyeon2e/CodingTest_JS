@@ -16,8 +16,8 @@ for (let i = 1; i <= N; i++) {
 }
 
 let result = [];
-for (let i = line; i <= line + M; i++) {
-  const toFindSiteName = input[i];
+for (let i = 0; i < M; i++) {
+  const toFindSiteName = input[line++].trim();
   result.push(siteMap.get(toFindSiteName));
 }
 

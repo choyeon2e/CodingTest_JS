@@ -17,11 +17,6 @@ function getGCD(a, b) {
   return a;
 }
 
-//최소공배수
-function getLCM(a, b) {
-  return (a / getGCD(a, b)) * b;
-}
-
 const t = +input[0];
 for (let i = 1; i <= t; i++) {
   const arr = input[i].split(" ").map(Number);

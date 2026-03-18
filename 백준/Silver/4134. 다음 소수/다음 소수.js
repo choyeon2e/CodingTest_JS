@@ -19,7 +19,6 @@ for (let n of nArr) {
   while (true) {
     if (isPrime(n)) {
       result.push(n);
-      n++;
       break;
     }
     n++;

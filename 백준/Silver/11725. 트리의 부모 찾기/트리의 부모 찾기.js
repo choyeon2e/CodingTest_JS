@@ -7,33 +7,37 @@ const input = fs
   .trim()
   .split("\n");
 
-let line = 0;
-const N = +input[line++];
+const N = Number(input[0]);
+/**
+ * 트리의 루트를 1이라고 했을 때 각 노드의 부모는?
+ */
 
-const adj = Array.from({ length: N + 1 }, () => []);
+const tree = Array.from({ length: N + 1 }, () => []);
 
-for (let i = 0; i < N - 1; i++) {
-  const [u, v] = input[line++].split(" ").map(Number);
-  adj[u].push(v);
-  adj[v].push(u);
+for (let i = 1; i < N; i++) {
+  const [w1, w2] = input[i].split(" ").map(Number);
+  tree[w1].push(w2);
+  tree[w2].push(w1);
+  //부모가 누구인지 모르니까 일단 양방향 그래프로 연결
 }
 
-const visited = new Array(N + 1).fill(false);
-const parents = new Array(N + 1).fill(0);
-const queue = [1]; //루트
-visited[1] = true; //1 방문했으므로
+const parent = Array(N + 1).fill(0); //부모
 
-let head = 0;
-while (head < queue.length) {
-  const current = queue[head++];
-
-  for (const next of adj[current]) {
-    if (!visited[next]) {
-      visited[next] = true;
-      parents[next] = current;
-      queue.push(next);
+function dfs(node) {
+  for (const next of tree[node]) {
+    if (parent[next] === 0) {
+      parent[next] = node;
+      dfs(next);
     }
   }
 }
 
-console.log(parents.slice(2).join("\n"));
+parent[1] = -1; //루트 1이고 루트의 부모는 없음
+dfs(1);
+
+let result = "";
+for (let i = 2; i <= N; i++) {
+  result += parent[i] + "\n";
+}
+
+console.log(result.trim());

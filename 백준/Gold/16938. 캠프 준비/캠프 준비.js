@@ -23,35 +23,25 @@ const levels = input[1].split(" ").map(Number);
 
 let count = 0;
 
-/**
- *
- * @param {number} i 지금 인덱스
- * @param {number} sum 지금까지 선택 문제의 난이도 합
- * @param {number} min 선택 문제 중 제일 쉬운 문제 난이도
- * @param {number} max 선택 문제 중 제일 어려운 문제 난이도
- * @param {number} num 선택한 문제 수
- * @returns
- */
-function checkProblem(i, sum, min, max, num) {
-  if (sum > R) return;
+for (let i = 1; i < 1 << N; i++) {
+  let sum = 0;
+  let min = Infinity;
+  let max = -Infinity;
+  let num = 0;
 
-  if (i === N) {
-    // 조건 체크
-    if (num >= 2 && sum >= L && max - min >= X) {
-      count++;
+  for (let j = 0; j < N; j++) {
+    if (i & (1 << j)) {
+      const currentLevel = levels[j];
+      sum += currentLevel;
+      if (currentLevel < min) min = currentLevel;
+      if (currentLevel > max) max = currentLevel;
+      num++;
     }
-    return;
   }
 
-  const nextMin = num === 0 ? levels[i] : Math.min(min, levels[i]);
-  const nextMax = num === 0 ? levels[i] : Math.max(max, levels[i]);
-
-  //현재 문제 선택시
-  checkProblem(i + 1, sum + levels[i], nextMin, nextMax, num + 1);
-
-  //현재 문제 선택 x시
-  checkProblem(i + 1, sum, min, max, num);
+  if (num >= 2 && sum >= L && sum <= R && max - min >= X) {
+    count++;
+  }
 }
 
-checkProblem(0, 0, 0, 0, 0);
 console.log(count);

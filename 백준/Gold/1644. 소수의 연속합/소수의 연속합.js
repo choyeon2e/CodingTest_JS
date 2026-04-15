@@ -4,17 +4,19 @@ const fs = require("fs");
 const input = fs
   .readFileSync(process.platform === "linux" ? "/dev/stdin" : "./input.txt")
   .toString()
-  .trim();
+  .trim()
+  .split("\n");
 
-const N = +input;
+const N = Number(input[0]);
 
-if (N === 1) {
-  console.log(0);
-  process.exit();
-}
+/**
+ * 자연수가 주어졌을 때, 이 자연수를 연속된 소수의 합으로 나타낼 수 있는 경우의 수 구하기
+ */
 
-function getPrimes(num) {
+function returnPrime(num) {
   let isPrime = new Array(num + 1).fill(true);
+  let primes = [];
+
   isPrime[0] = isPrime[1] = false;
 
   for (let i = 2; i <= Math.sqrt(num); i++) {
@@ -25,31 +27,26 @@ function getPrimes(num) {
     }
   }
 
-  let primes = [];
   for (let i = 2; i <= num; i++) {
     if (isPrime[i]) primes.push(i);
   }
   return primes;
 }
 
-const primes = getPrimes(N);
-
-let count = 0;
-let start = 0;
-let end = 0;
+const primeArr = returnPrime(N);
 let sum = 0;
+let start = 0;
+let count = 0;
 
-while (true) {
-  if (sum >= N) {
-    if (sum === N) count++;
-    sum -= primes[start];
+for (const prime of primeArr) {
+  sum += prime;
+
+  while (sum > N) {
+    sum -= primeArr[start];
     start++;
-  } else if (end === primes.length) {
-    break;
-  } else {
-    sum += primes[end];
-    end++;
   }
+
+  if (sum === N) count++;
 }
 
 console.log(count);

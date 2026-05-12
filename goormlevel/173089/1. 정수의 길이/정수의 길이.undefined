@@ -1,0 +1,20 @@
+// Run by Node.js
+const readline = require('readline');
+
+(async () => {
+	let rl = readline.createInterface({ input: process.stdin });
+	const input = [];
+	
+	for await (const line of rl) {
+		if (!line) rl.close();
+		input.push(line);
+	}
+	solution(input);
+	process.exit();
+})();
+
+
+function solution(input){
+	const str = input[0].split("");
+	console.log(str.length);
+}

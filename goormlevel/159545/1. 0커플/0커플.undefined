@@ -1,0 +1,37 @@
+// Run by Node.js
+const readline = require('readline');
+
+(async () => {
+	let rl = readline.createInterface({ input: process.stdin });
+	const input = [];
+	for await (const line of rl) {
+		if (!line) rl.close();
+		input.push(line);
+	}
+	console.log(solution(input));
+	process.exit();
+})();
+
+/**
+* 지인 점수 부여 방식
+* - 구름이 지인의 수는 항상 짝수
+* - 모든 점수는 0점을 제외한 정수
+* - 지인 중 같은 점수 가지는 경우는 x
+* - 만약 n점을 가진 사람이 있으면 -n점 가진 사람 항상 존재
+*
+* 지인들 중 점수 합이 0이 되는 둘을 짝지어서 소개팅하기로 함.
+* 위의 규칙으로 점수를 부여하다가 실수로 4번째 규칙을 못지켜 두사람이 소개팅을 못받음
+* 둘의 점수를 합한 값은?
+**/
+
+function solution(input){
+	const N = Number(input[0]);
+	const scores = input[1].split(" ").map(Number);
+	let answer = 0;
+	
+	for (let i=0; i<N; i++){
+		answer += scores[i];
+	}
+
+	return answer;
+}

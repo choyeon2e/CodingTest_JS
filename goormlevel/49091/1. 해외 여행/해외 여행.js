@@ -28,7 +28,6 @@ function solution(input) {
     const graph = Array.from({ length: N + 1 }, () => []);
 
     for (let i = 1; i <= M; i++) {
-        if (!input[i]) break;
         const [A, B, W] = input[i].split(" ").map(Number);
         graph[A].push([B, W]);
     }

@@ -1,11 +1,6 @@
-import sys
 from collections import deque
 
-sys.stdin = open('input.txt')
-
 """
-12:10 시작
-
 책상 배열 NxN 정사각형
 1책상 1학생
 1행 1열 ~ N행 N열 총 N^2명 학생
@@ -81,15 +76,15 @@ def in_range(r, c):
     return 0 <= r < N and 0 <= c < N
 
 
-def breakfast():  # 아침: 모든 구성원 신앙심 +1
+def breakfast():
     for i in range(N):
         for j in range(N):
             B[i][j] += 1
 
 
-def make_group():  # bfs 그룹묶기
-    visited = [[False] * N for _ in range(N)]
+def make_group():
     groups = []
+    visited = [[False] * N for _ in range(N)]
     for i in range(N):
         for j in range(N):
             if visited[i][j]:
@@ -109,42 +104,48 @@ def make_group():  # bfs 그룹묶기
     return groups
 
 
-def select_leader():  # 대표자 선정
-    group = make_group()
-    leader = []
-    for members in group:  # 한 행
-        lr, lc = members[0]  # 일단 첫번째로 지정해두기
-        for r, c in members:
-            if B[r][c] > B[lr][lc]:  # 리더 정하기 조건에 맞게
+def select_leader(groups):
+    leaders = []
+    for group in groups:
+        lr, lc = group[0]
+        for r, c in group:
+            if B[r][c] > B[lr][lc]:
                 lr, lc = r, c
-            elif B[r][c] == B[lr][lc]:
-                if r < lr:
-                    lr, lc = r, c
-                elif r == lr and c < lc:
-                    lr, lc = r, c
+            elif B[r][c] == B[lr][lc] and r < lr:
+                lr, lc = r, c
+            elif B[r][c] == B[lr][lc] and r == lr and c < lc:
+                lr, lc = r, c
 
-        for r, c in members:
-            if (r, c) != (lr, lc):
-                B[r][c] -= 1  # 신앙심 대표에게 넘기기
+        for r, c in group:
+            if (lr, lc) != (r, c):
+                B[r][c] -= 1
 
-        B[lr][lc] += len(members) - 1  # 대표 신앙심
-        leader.append((lr, lc))
-    return leader
+        B[lr][lc] += len(group) - 1
+        leaders.append((lr, lc))
+    return leaders
 
 
-def merge(a, b):  # 음식명합치기
-    result = ''
-    for ch in 'TCM':
-        if ch in a or ch in b:
+def lunch():
+    groups = make_group()
+    leaders = select_leader(groups)
+    return leaders
+
+
+def merge_food(a, b):
+    s = set(a) | set(b)
+    result = ""
+    basic_food = "TCM"
+    for ch in basic_food:
+        if ch in s:
             result += ch
     return result
 
 
-def spread_B(leader):  # 신앙 전파
+def dinner(leaders):
     order = []
-    for k in range(1, 4):  # 단일-이중-삼중 순서대로 진행
+    for k in range(1, 4):
         cand = []
-        for r, c in leader:
+        for r, c in leaders:
             if len(F[r][c]) == k:
                 cand.append((r, c))
         while cand:
@@ -152,37 +153,36 @@ def spread_B(leader):  # 신앙 전파
             for r, c in cand:
                 if B[r][c] > B[lr][lc]:
                     lr, lc = r, c
-                elif B[r][c] == B[lr][lc]:
-                    if r < lr:
-                        lr, lc = r, c
-                    elif r == lr and c < lc:
-                        lr, lc = r, c
+                elif B[r][c] == B[lr][lc] and r < lr:
+                    lr, lc = r, c
+                elif B[r][c] == B[lr][lc] and r == lr and c < lc:
+                    lr, lc = r, c
             cand.remove((lr, lc))
             order.append((lr, lc))
 
-    defense = [[False] * N for _ in range(N)]  # 방어상태
+    defense = [[False] * N for _ in range(N)]
     for r, c in order:
-        if defense[r][c]:
-            continue  # 오늘 전파당해서 방어상태면 전파 패스
+        if defense[r][c] == True:
+            continue
 
         food = F[r][c]
-        d = B[r][c] % 4  # 0: 상, 1: 하, 2: 좌, 3: 우
-        x = B[r][c] - 1  # 간절함
+        d = B[r][c] % 4
+        x = B[r][c] - 1
         B[r][c] = 1
 
         nr, nc = r + dr[d], c + dc[d]
         while in_range(nr, nc) and x > 0:
             if F[nr][nc] != food:
                 y = B[nr][nc]
-                if x > y:  # 강한전파
+                if x > y:
                     F[nr][nc] = food
                     x -= y + 1
                     B[nr][nc] += 1
-
-                else:  # 약한전파
-                    F[nr][nc] = merge(F[nr][nc], F[r][c])
+                else:
+                    F[nr][nc] = merge_food(F[nr][nc], food)
                     B[nr][nc] += x
                     x = 0
+
                 defense[nr][nc] = True
             nr += dr[d]
             nc += dc[d]
@@ -190,13 +190,11 @@ def spread_B(leader):  # 신앙 전파
 
 for _ in range(T):
     breakfast()
-    leader = select_leader()
-    spread_B(leader)
+    leader = lunch()
+    dinner(leader)
 
     answer = {'TCM': 0, 'TC': 0, 'TM': 0, 'CM': 0, 'M': 0, 'C': 0, 'T': 0}
-    
     for i in range(N):
         for j in range(N):
             answer[F[i][j]] += B[i][j]
-
     print(answer['TCM'], answer['TC'], answer['TM'], answer['CM'], answer['M'], answer['C'], answer['T'])

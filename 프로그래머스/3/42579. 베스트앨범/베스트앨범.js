@@ -1,45 +1,45 @@
 /**
- * 장르별 가장 많이 재생된 노래 두개 모으기
- * 노래는 고유번호로 구분
+ * 많이 재생된 노래 두개씩 모아 앨범 출시
+ * 노래 -> 고유번호로 구분
  *
- * 노래 수록 기준
- * 속한 노래가 많이 재생된 장르 먼저 수록
- * 장르에서 많이 재생된 노래 먼저 수록
- * 재생횟수 같으면 고유번호 낮은 노래 먼저 수록
- *
- * 장르에 속한 곡이 하나라면 하나의 곡만 선택
+ * 노래 수록기준
+ * 1. 속한 노래가 많이 재생된 장르 먼저
+ * 2. 장르 내에서 많이 재생된 노래 먼저
+ * 3. 장르 내 재생횟수 같은 노래는 고유번호가 낮은 노래 먼저
  **/
 
 function solution(genres, plays) {
-    const genreTotal = {}; // 장르별 총 재생 횟수
-    const genreMap = {}; // 장르별 곡 정보 목록
+    const answer = [];
+    const genres_count = {}; //key: 장르, value: 장르별 plays 총합
+    const plays_count = {}; //{"classic": [[0,500], [2,150]], ...}
 
-    genres.forEach((genre, i) => {
-        const play = plays[i];
-        genreTotal[genre] = (genreTotal[genre] || 0) + play;
+    for (let i = 0; i < genres.length; i++) {
+        let temp = genres[i];
+        let count = plays[i];
+        genres_count[temp] = (genres_count[temp] || 0) + count;
 
-        if (!genreMap[genre]) genreMap[genre] = [];
-        genreMap[genre].push({ id: i, play: play });
-    });
+        plays_count[temp] = plays_count[temp] || [];
+        plays_count[temp].push([i, count]);
+    }
 
-    const sortedGenres = Object.keys(genreTotal).sort((a, b) => {
-        return genreTotal[b] - genreTotal[a];
-    });
+    const sorted_genres = Object.keys(genres_count).sort(
+        (a, b) => genres_count[b] - genres_count[a] //큰거부터
+    );
 
-    const result = [];
-
-    sortedGenres.forEach((genre) => {
-        const songs = genreMap[genre];
+    for (let genre of sorted_genres) {
+        const songs = plays_count[genre]; //[[0,500], [2,150], ...]
 
         songs.sort((a, b) => {
-            if (a.play === b.play) {
-                return a.id - b.id;
+            if (a[1] !== b[1]) {
+                return b[1] - a[1]; //재생횟수 큰 순
             }
-            return b.play - a.play;
+            return a[0] - b[0]; //같으면 고유번호 작은 순
         });
 
-        result.push(...songs.slice(0, 2).map((song) => song.id));
-    });
-
-    return result;
+        answer.push(songs[0][0]);
+        if (songs.length > 1) {
+            answer.push(songs[1][0]);
+        }
+    }
+    return answer;
 }

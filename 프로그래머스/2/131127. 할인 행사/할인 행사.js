@@ -1,15 +1,27 @@
 function solution(want, number, discount) {
-    let answer = 0;
+    const memo = {};
+    let result = 0;
 
-    for (let i = 0; i <= discount.length - 10; i++) {
-        const currentSlice = discount.slice(i, i + 10);
-        
-        const isMatch = want.every((item, index) => {
-            const count = currentSlice.filter(e => e === item).length;
-            return count >= number[index];
-        });
-        
-        if (isMatch) answer++;
+    for (let day = 0; day < discount.length; day++) {
+        memo[discount[day]] = (memo[discount[day]] || 0) + 1;
+
+        if (day >= 10) {
+            memo[discount[day - 10]] -= 1;
+        }
+
+        if (day >= 9) {
+            let ok = true;
+
+            for (let i = 0; i < want.length; i++) {
+                if (memo[want[i]] !== number[i]) {
+                    ok = false;
+                    break;
+                }
+            }
+
+            if (ok) result += 1;
+        }
     }
-    return answer;
+
+    return result;
 }

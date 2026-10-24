@@ -11,38 +11,39 @@
  **/
 
 function toMin(time) {
-    let [h, m] = time.split(":").map(Number);
-    return h * 60 + m;
+    const [hour, min] = time.split(":").map(Number);
+    return hour * 60 + min;
 }
 
 function solution(fees, records) {
-    let inTime = {}; //{차 번호: 입차시간(분)}
-    let totalT = {}; //{차 번호: 누적분}
-    let answer = [];
+    const car = {}; // {id: 입차시각(분)}
+    const ing_time = {};
+    const result = [];
 
     for (let record of records) {
-        let [time, car, type] = record.split(" ");
+        const [time, id, command] = record.split(" ");
 
-        if (type === "IN") {
-            inTime[car] = toMin(time);
+        if (command === "IN") {
+            car[id] = toMin(time);
         } else {
-            totalT[car] = (totalT[car] || 0) + (toMin(time) - inTime[car]);
-            delete inTime[car];
+            ing_time[id] = (ing_time[id] || 0) + toMin(time) - car[id];
+            delete car[id];
         }
     }
 
-    for (let car of Object.keys(inTime)) {
-        totalT[car] = (totalT[car] || 0) + (toMin("23:59") - inTime[car]);
+    for (let c of Object.keys(car)) {
+        //car에 남아있는건 OUT안된거
+        ing_time[c] = (ing_time[c] || 0) + toMin("23:59") - car[c];
     }
 
-    for (let car of Object.keys(totalT).sort()) {
-        if (fees[0] < totalT[car]) {
-            answer.push(
-                fees[1] + Math.ceil((totalT[car] - fees[0]) / fees[2]) * fees[3]
+    for (let c of Object.keys(ing_time).sort()) {
+        if (fees[0] < ing_time[c]) {
+            result.push(
+                fees[1] + Math.ceil((ing_time[c] - fees[0]) / fees[2]) * fees[3]
             );
         } else {
-            answer.push(fees[1]);
+            result.push(fees[1]);
         }
     }
-    return answer;
+    return result;
 }

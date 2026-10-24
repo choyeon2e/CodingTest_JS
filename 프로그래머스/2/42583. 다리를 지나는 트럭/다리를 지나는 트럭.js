@@ -1,30 +1,26 @@
 /**
  * 모든 트럭이 다리를 건너려면 최소 몇초?
- *
- * 트럭이 최대 bridge_length대 올라갈 수 있음
- * 다리는 weight 이하까지 견디기 가능
+ * 다리에 처음 올라간 뒤 다리를 내려올때까지 다리 길이만큼의 시간 걸림
+ * 초당 버스 1개만 다리에 올라갈 수 있고 초당 버스 1개만 다리에서 빠져나올 수 있음
  **/
 
 function solution(bridge_length, weight, truck_weights) {
-    let t = 0;
-    let bridgeW = 0; //현재 다리 위에 있는 트럭의 무게
-    const bridge = new Array(bridge_length).fill(0);
+    const bridge = []; //{ w: 무게, out: 내리는 시간 }
+    let bw = 0;
+    let time = 0;
 
-    while (truck_weights.length > 0 || bridgeW > 0) {
-        t++;
+    while (truck_weights.length > 0 || bridge.length > 0) {
+        time += 1;
 
-        const passedTruck = bridge.shift();
-        bridgeW -= passedTruck;
+        if (bridge.length > 0 && bridge[0].out === time) {
+            bw -= bridge.shift().w;
+        }
 
-        if (truck_weights.length > 0) {
-            if (bridgeW + truck_weights[0] <= weight) {
-                const nextTruck = truck_weights.shift();
-                bridge.push(nextTruck);
-                bridgeW += nextTruck;
-            } else {
-                bridge.push(0);
-            }
+        if (truck_weights.length > 0 && bw + truck_weights[0] <= weight) {
+            const w = truck_weights.shift();
+            bridge.push({ w: w, out: time + bridge_length });
+            bw += w;
         }
     }
-    return t;
+    return time;
 }

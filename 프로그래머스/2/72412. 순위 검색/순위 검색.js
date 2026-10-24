@@ -1,73 +1,74 @@
 /**
- * 지원서 선택 항목 4가지
- * 1. 개발언어: cpp, java, python
- * 2. 지원직군: backend, frontend
- * 3. 경력구분: junior, senior
- * 4. 소울푸드: chicken, pizza
- *
- * 지원자들의 지원조건을 선택 시 해당 조건에 맞는 지원자의 수를 알려주는 도구 만드는 중
- * [조건]을 만족하는 사람 중 코테 점수 X점 이상 받은 사람은 모두 몇명인가?
- *
- * 지원서의 4가지 정보와 코테 점수를 하나의 문자열로 구성한 배열 info
- * 문의조건이 문자열 형태로 담긴 배열 query
- * => ~ and ~ and ~ 형식, -이면 해당 조건 고려 x 의미
- *
- * 각 문의조건에 해당하는 사람들의 숫자를 순서대로 배열에 담아 return하기
+ * [조건]을 만족하는 사람 중 코딩테스트를 X점 이상 받은사람은 몇명?
  **/
 
-function binarySearch(scores, score) {
-    let low = 0;
-    let high = scores.length;
+function make_keys(lang, job, career, food) {
+    const keys = [];
 
-    while (low < high) {
-        let mid = Math.floor((low + high) / 2);
-
-        if (scores[mid] >= score) high = mid;
-        else low = mid + 1;
+    for (const a of [lang, "-"]) {
+        for (const b of [job, "-"]) {
+            for (const c of [career, "-"]) {
+                for (const d of [food, "-"]) {
+                    keys.push(`${a} ${b} ${c} ${d}`);
+                }
+            }
+        }
     }
-
-    return scores.length - low;
+    return keys;
 }
 
-function combine(arr, score, start, map) {
-    const key = arr.join("");
+function parse_query(q) {
+    const [lang, job, career, rest] = q.split(" and ");
+    const [food, score] = rest.split(" ");
 
-    if (map[key]) map[key].push(score);
-    else map[key] = [score];
-
-    for (let i = start; i < arr.length; i++) {
-        const temp = [...arr];
-        temp[i] = "-";
-        combine(temp, score, i + 1, map);
-    }
+    return {
+        key: `${lang} ${job} ${career} ${food}`,
+        score: Number(score),
+    };
 }
 
-function manageQuery(query, map) {
-    return query.map((q) => {
-        const parts = q.replace(/ and /g, " ").split(" ");
-        const score = Number(parts.pop());
-        const key = parts.join("");
-        const scores = map[key];
+function count_score(scores, x) {
+    let left = 0;
+    let right = scores.length;
 
-        if (!scores) return 0;
+    while (left < right) {
+        const mid = Math.floor((left + right) / 2);
+        if (scores[mid] >= x) right = mid;
+        else left = mid + 1;
+    }
 
-        return binarySearch(scores, score);
-    });
+    return scores.length - left;
 }
 
 function solution(info, query) {
-    const map = {};
+    const drawers = {};
+    const answer = [];
 
-    info.forEach((item) => {
-        const parts = item.split(" ");
-        const score = Number(parts.pop());
+    for (const inf of info) {
+        const [lang, job, career, food, score] = inf.split(" ");
 
-        combine(parts, score, 0, map);
-    });
-
-    for (const key in map) {
-        map[key].sort((a, b) => a - b);
+        for (const key of make_keys(lang, job, career, food)) {
+            if (!drawers[key]) drawers[key] = [];
+            drawers[key].push(Number(score));
+        }
     }
 
-    return manageQuery(query, map);
+    for (const key in drawers) {
+        drawers[key].sort((a, b) => a - b);
+    }
+
+    for (const q of query) {
+        const parsed = parse_query(q);
+        const key = parsed.key;
+        const score = parsed.score;
+        let scores = drawers[key];
+
+        if (!scores) {
+            scores = [];
+        }
+
+        const count = count_score(scores, score);
+        answer.push(count);
+    }
+    return answer;
 }

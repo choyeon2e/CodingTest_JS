@@ -9,11 +9,12 @@
 
 function solution(clothes) {
     const count = {};
+    let answer = 1;
+
     for (const [name, type] of clothes) {
         count[type] = (count[type] || 0) + 1;
     }
 
-    let answer = 1;
     for (const type in count) {
         answer *= count[type] + 1;
     }

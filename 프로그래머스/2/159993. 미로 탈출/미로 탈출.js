@@ -1,36 +1,40 @@
+/**
+ * 출발 지점 -> 레버 칸 -> 출구 문
+ * ==>> 출발지점 ~ 레버칸 bfs 1차 + 레버칸 ~ 출구 bfs 2차
+ *
+ * 한 칸 이동하는데에 1초 -> 최단시간(=1초 걸리므로 최단거리)
+ **/
+
+//상하좌우
 const dr = [-1, 1, 0, 0];
 const dc = [0, 0, -1, 1];
 
-function bfs(startPos, targetPos, maps, R, C) {
-    const [sr, sc] = startPos;
-    const [tr, tc] = targetPos;
+function in_range(nr, nc, n, m) {
+    return nr >= 0 && nr < n && nc >= 0 && nc < m;
+}
 
-    const visited = Array.from({ length: R }, () => Array(C).fill(false));
-    const queue = [[sr, sc, 0]];
+function bfs(ts, te, maps, n, m) {
+    const dist = Array.from({ length: n }, () => new Array(m).fill(-1));
+    dist[ts[0]][ts[1]] = 0;
 
-    visited[sr][sc] = true;
-
+    const queue = [ts];
     let head = 0;
+
     while (head < queue.length) {
-        const [r, c, dist] = queue[head++];
+        const [r, c] = queue[head++];
+        if (r === te[0] && c === te[1]) return dist[r][c];
 
-        if (r === tr && c === tc) return dist;
-
-        for (let i = 0; i < 4; i++) {
-            const nr = r + dr[i];
-            const nc = c + dc[i];
+        for (let d = 0; d < 4; d++) {
+            const nr = r + dr[d];
+            const nc = c + dc[d];
 
             if (
-                nr >= 0 &&
-                nr < R &&
-                nc >= 0 &&
-                nc < C &&
-                maps[nr][nc] !== "X"
+                in_range(nr, nc, n, m) &&
+                maps[nr][nc] !== "X" &&
+                dist[nr][nc] === -1
             ) {
-                if (!visited[nr][nc]) {
-                    visited[nr][nc] = true;
-                    queue.push([nr, nc, dist + 1]);
-                }
+                dist[nr][nc] = dist[r][c] + 1;
+                queue.push([nr, nc]);
             }
         }
     }
@@ -38,24 +42,23 @@ function bfs(startPos, targetPos, maps, R, C) {
 }
 
 function solution(maps) {
-    const R = maps.length;
-    const C = maps[0].length;
-
+    const n = maps.length;
+    const m = maps[0].length;
     let start, lever, exit;
 
-    for (let i = 0; i < R; i++) {
-        for (let j = 0; j < C; j++) {
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
             if (maps[i][j] === "S") start = [i, j];
             else if (maps[i][j] === "L") lever = [i, j];
             else if (maps[i][j] === "E") exit = [i, j];
         }
     }
 
-    const step1 = bfs(start, lever, maps, R, C);
-    if (step1 === -1) return -1;
+    const toLever = bfs(start, lever, maps, n, m);
+    if (toLever === -1) return -1;
 
-    const step2 = bfs(lever, exit, maps, R, C);
-    if (step2 === -1) return -1;
+    const toExit = bfs(lever, exit, maps, n, m);
+    if (toExit === -1) return -1;
 
-    return step1 + step2;
+    return toLever + toExit;
 }

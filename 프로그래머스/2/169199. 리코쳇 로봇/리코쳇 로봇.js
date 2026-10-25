@@ -1,71 +1,68 @@
 /**
- * 리코쳇 로봇 게임
- * 시작 위치에서 출발 => 목표 위치에 멈추기 위해 최소 몇번 이동해야하는가?
+ * 리코쳇 로봇: R에서 G 도달까지 최소 몇번 이동?
  *
- * 상,하,좌,우 한 방향으로 장애물이나 가장자리에 부딪힐 때까지 움직이는 것이 한 번의 이동
+ * 상하좌우로 이동. D or 가장자리 부딪힐때까지 움직이는게 한번의 이동
+ * 만약 G에 도달 불가하면 -1 리턴
  *
- * . : 빈공간
- * R: 로봇 처음위치
- * D: 장애물 위치
- * G: 목표 지점
- *
+ * solve)
+ * R에서 출발 -> bfs로 상하좌우로 이동
  **/
 
-function solution(board) {
-    //상하좌우
-    const dr = [-1, 1, 0, 0];
-    const dc = [0, 0, -1, 1];
+//상하좌우
+const dr = [-1, 1, 0, 0];
+const dc = [0, 0, -1, 1];
 
-    const R = board.length;
-    const C = board[0].length;
+function in_range(r, c, n, m) {
+    return r >= 0 && r < n && c >= 0 && c < m;
+}
 
-    //시작지점 찾기
-    let start = [];
-    for (let i = 0; i < R; i++) {
-        for (let j = 0; j < C; j++) {
-            if (board[i][j] === "R") {
-                start = [i, j];
-            }
-        }
+function slide(board, r, c, d, n, m) {
+    while (true) {
+        const nr = r + dr[d];
+        const nc = c + dc[d];
+
+        //다음칸이 가장자리거나 D인경우 ==> 슬라이딩 한번 후 멈추는 위치
+        if (!in_range(nr, nc, n, m) || board[nr][nc] === "D") break;
+
+        r = nr;
+        c = nc;
     }
 
-    const queue = [[...start, 0]];
-    const visited = Array.from({ length: R }, () => Array(C).fill(false));
+    return [r, c];
+}
 
-    visited[start[0]][start[1]] = true;
+function bfs(board, R, n, m) {
+    const dist = Array.from({ length: n }, () => new Array(m).fill(-1));
+    const [startR, startC] = R;
+    dist[startR][startC] = 0;
 
-    //bfs
+    const queue = [R];
     let head = 0;
+
     while (head < queue.length) {
-        const [r, c, dist] = queue[head++];
-        if (board[r][c] === "G") return dist;
+        const [r, c] = queue[head++];
+        if (board[r][c] === "G") return dist[r][c];
 
-        for (let i = 0; i < 4; i++) {
-            let nr = r;
-            let nc = c;
-
-            while (true) {
-                let nextR = nr + dr[i];
-                let nextC = nc + dc[i];
-
-                if (
-                    nextR >= R ||
-                    nextR < 0 ||
-                    nextC < 0 ||
-                    nextC >= C ||
-                    board[nextR][nextC] === "D"
-                ) {
-                    break;
-                }
-                nr = nextR;
-                nc = nextC;
-            }
-
-            if (!visited[nr][nc]) {
-                visited[nr][nc] = true;
-                queue.push([nr, nc, dist + 1]);
+        for (let d = 0; d < 4; d++) {
+            const [nr, nc] = slide(board, r, c, d, n, m);
+            if (dist[nr][nc] === -1) {
+                dist[nr][nc] = dist[r][c] + 1;
+                queue.push([nr, nc]);
             }
         }
     }
     return -1;
+}
+
+function solution(board) {
+    const n = board.length;
+    const m = board[0].length;
+    let R;
+
+    for (let i = 0; i < n; i++) {
+        for (let j = 0; j < m; j++) {
+            if (board[i][j] === "R") R = [i, j];
+        }
+    }
+    return bfs(board, R, n, m);
 }

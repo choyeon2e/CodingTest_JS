@@ -2,32 +2,43 @@
 const dr = [-1, 1, 0, 0];
 const dc = [0, 0, -1, 1];
 
+//범위 내에 있는지 확인
+function in_range(nr, nc, n, m) {
+    return nr >= 0 && nr < n && nc >= 0 && nc < m;
+}
+
+//bfs 함수
 function bfs(maps, n, m) {
+    const dist = Array.from({ length: n }, () => new Array(m).fill(0));
+    dist[0][0] = 1;
+
     const queue = [[0, 0]];
+    let head = 0;
 
-    while (queue.length > 0) {
-        const [r, c] = queue.shift();
+    while (head < queue.length) {
+        const [r, c] = queue[head++];
+        if (r === n - 1 && c === m - 1) return dist[r][c];
 
-        for (let i = 0; i < 4; i++) {
-            const nr = r + dr[i];
-            const nc = c + dc[i];
+        for (let d = 0; d < 4; d++) {
+            const nr = r + dr[d];
+            const nc = c + dc[d];
 
-            if (nr >= 0 && nr < n && nc >= 0 && nc < m) {
-                if (maps[nr][nc] === 1) {
-                    maps[nr][nc] = maps[r][c] + 1;
-                    queue.push([nr, nc]);
-                }
+            if (
+                in_range(nr, nc, n, m) &&
+                maps[nr][nc] === 1 &&
+                dist[nr][nc] === 0
+            ) {
+                dist[nr][nc] = dist[r][c] + 1;
+                queue.push([nr, nc]);
             }
         }
     }
-    const target = maps[n - 1][m - 1];
-
-    return target === 1 ? -1 : target; //1이면 벽에 막힌거
+    return -1;
 }
 
 function solution(maps) {
-    const n = maps.length; //세로
-    const m = maps[0].length; //가로
+    const n = maps.length;
+    const m = maps[0].length;
 
     return bfs(maps, n, m);
 }

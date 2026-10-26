@@ -11,6 +11,14 @@ class MinHeap {
         this.heap = [];
     }
 
+    size() {
+        return this.heap.length;
+    }
+
+    peek() {
+        return this.heap[0];
+    }
+
     push(val) {
         this.heap.push(val);
         let index = this.heap.length - 1;
@@ -61,24 +69,24 @@ class MinHeap {
 
         return root;
     }
-
-    size() {
-        return this.heap.length;
-    }
 }
 
 function solution(scoville, K) {
     const heap = new MinHeap();
-    scoville.forEach((s) => heap.push(s));
+
+    for (const s of scoville) {
+        heap.push(s);
+    }
 
     let answer = 0;
 
-    while (heap.heap[0] < K) {
-        if (heap.heap.length < 2) return -1;
+    while (heap.peek() < K) {
+        if (heap.size() < 2) return -1; //스코빌지수 K 미만인데 섞을 음식이 없음
+
         const first = heap.pop();
         const second = heap.pop();
-
         heap.push(first + second * 2);
+
         answer++;
     }
 

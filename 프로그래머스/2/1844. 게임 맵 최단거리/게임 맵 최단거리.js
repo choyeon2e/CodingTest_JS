@@ -1,19 +1,22 @@
-//상하좌우
+/**
+ * 동서남북 한칸씩 이동
+ * 0: 벽, 1: 벽 x
+ * 초기위치: (1,1), 도착위치: (n,m)
+ * 최단거리 = ?, 도착못하면 -1 리턴
+ **/
+
 const dr = [-1, 1, 0, 0];
 const dc = [0, 0, -1, 1];
 
-//범위 내에 있는지 확인
-function in_range(nr, nc, n, m) {
-    return nr >= 0 && nr < n && nc >= 0 && nc < m;
+function in_range(n, m, r, c) {
+    return r >= 0 && r < n && c >= 0 && c < m;
 }
 
-//bfs 함수
 function bfs(maps, n, m) {
     const dist = Array.from({ length: n }, () => new Array(m).fill(0));
     dist[0][0] = 1;
-
-    const queue = [[0, 0]];
     let head = 0;
+    const queue = [[0, 0]];
 
     while (head < queue.length) {
         const [r, c] = queue[head++];
@@ -24,11 +27,11 @@ function bfs(maps, n, m) {
             const nc = c + dc[d];
 
             if (
-                in_range(nr, nc, n, m) &&
+                in_range(n, m, nr, nc) &&
                 maps[nr][nc] === 1 &&
                 dist[nr][nc] === 0
             ) {
-                dist[nr][nc] = dist[r][c] + 1;
+                dist[nr][nc] += dist[r][c] + 1;
                 queue.push([nr, nc]);
             }
         }

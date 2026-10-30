@@ -1,18 +1,17 @@
-function dfs(index, sum, num, target) {
-    if (index === num.length) {
-        if (sum === target) {
-            return 1;
-        }
-        return 0;
-    }
-
-    return (
-        dfs(index + 1, sum + num[index], num, target) +
-        dfs(index + 1, sum - num[index], num, target)
-    );
-}
-
 function solution(numbers, target) {
-    let answer = dfs(0, 0, numbers, target);
-    return answer;
+    const queue = [[0, 0]]; //[index, sum]
+    let head = 0;
+    let count = 0;
+
+    while (head < queue.length) {
+        const [index, sum] = queue[head++];
+
+        if (index === numbers.length) {
+            if (sum === target) count++;
+            continue;
+        }
+        queue.push([index + 1, sum + numbers[index]]);
+        queue.push([index + 1, sum - numbers[index]]);
+    }
+    return count;
 }

@@ -1,44 +1,34 @@
-/**
- * 시작점: (0,0)
- * 경계: (-5,5), (-5,-5), (5,5), (5,-5)
- *
- * 명령어 dirs: U, D, R, L (위, 아래, 오른쪽, 왼쪽)
- * 이미 지났던 길을 제외하고 캐릭터가 처음 걸어본 길의 길이 = ?
- *
- * sol)
- * 중복제거: Set 이용
- **/
+const dr = [-1, 1, 0, 0];
+const dc = [0, 0, -1, 1]; //상하좌우
 
-const moves = {
-    U: [0, 1], // 위
-    D: [0, -1], // 아래
-    R: [1, 0], // 오른쪽
-    L: [-1, 0], // 왼쪽
-};
+function get_dir(cmd) {
+    if (cmd === "U") return 0;
+    if (cmd === "D") return 1;
+    if (cmd === "L") return 2;
+    return 3;
+}
+
+function in_range(r, c) {
+    return r >= -5 && r <= 5 && c >= -5 && c <= 5;
+}
 
 function solution(dirs) {
-    let answer = 0;
-    let currentX = 0;
-    let currentY = 0;
     const visited = new Set();
+    let r = 0,
+        c = 0;
 
-    for (const dir of dirs) {
-        const [dx, dy] = moves[dir];
-        const nx = dx + currentX;
-        const ny = dy + currentY;
+    for (let i = 0; i < dirs.length; i++) {
+        const d = get_dir(dirs[i]);
+        const nr = r + dr[d];
+        const nc = c + dc[d];
 
-        if (nx < -5 || nx > 5 || ny < -5 || ny > 5) {
-            continue;
-        }
+        if (!in_range(nr, nc)) continue;
 
-        const path1 = `${currentX},${currentY}->${nx},${ny}`;
-        const path2 = `${nx},${ny}->${currentX},${currentY}`;
+        visited.add(`${r}, ${c}, ${nr}, ${nc}`);
+        visited.add(`${nr}, ${nc}, ${r}, ${c}`);
 
-        visited.add(path1);
-        visited.add(path2);
-
-        currentX = nx;
-        currentY = ny;
+        r = nr;
+        c = nc;
     }
     return visited.size / 2;
 }

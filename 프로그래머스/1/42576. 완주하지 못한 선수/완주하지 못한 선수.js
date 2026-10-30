@@ -1,16 +1,8 @@
 function solution(participant, completion) {
-    const map = new Map();
-    
-    for (let p of participant){
-        map.set(p, (map.get(p)||0)+1);
-    }
-    
-    for (let c of completion){
-        map.set(c, map.get(c)-1);
-    }
-    
-    for (let [name, count] of map){
-        if (count>0) return name;
-    }
+    participant.sort();
+    completion.sort();
 
+    for (let i = 0; i < participant.length; i++) {
+        if (participant[i] !== completion[i]) return participant[i];
+    }
 }

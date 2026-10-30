@@ -11,39 +11,46 @@
  **/
 
 function toMin(time) {
-    const [hour, min] = time.split(":").map(Number);
-    return hour * 60 + min;
+    const [h, m] = time.split(":").map(Number);
+    return h * 60 + m;
 }
 
 function solution(fees, records) {
-    const car = {}; // {id: 입차시각(분)}
-    const ing_time = {};
-    const result = [];
+    const [baseTime, baseFee, unitTime, unitFee] = fees;
+    const answer = [];
+    const inTime = new Map();
+    const total = new Map();
 
-    for (let record of records) {
-        const [time, id, command] = record.split(" ");
+    for (const record of records) {
+        const [time, car, type] = record.split(" ");
+        const t = toMin(time);
 
-        if (command === "IN") {
-            car[id] = toMin(time);
+        if (type === "IN") {
+            inTime.set(car, t);
         } else {
-            ing_time[id] = (ing_time[id] || 0) + toMin(time) - car[id];
-            delete car[id];
+            total.set(car, (total.get(car) || 0) + t - inTime.get(car));
+            inTime.delete(car);
         }
     }
 
-    for (let c of Object.keys(car)) {
-        //car에 남아있는건 OUT안된거
-        ing_time[c] = (ing_time[c] || 0) + toMin("23:59") - car[c];
+    for (const [car, t] of inTime) {
+        total.set(car, (total.get(car) || 0) + toMin("23:59") - t);
     }
 
-    for (let c of Object.keys(ing_time).sort()) {
-        if (fees[0] < ing_time[c]) {
-            result.push(
-                fees[1] + Math.ceil((ing_time[c] - fees[0]) / fees[2]) * fees[3]
-            );
+    const cars = [...total.keys()].sort();
+
+    for (const car of cars) {
+        const time = total.get(car);
+        let fee;
+
+        if (time <= baseTime) {
+            fee = baseFee;
         } else {
-            result.push(fees[1]);
+            const overTime = time - baseTime;
+            const overUnits = Math.ceil(overTime / unitTime);
+            fee = baseFee + overUnits * unitFee;
         }
+        answer.push(fee);
     }
-    return result;
+    return answer;
 }

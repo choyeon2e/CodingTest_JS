@@ -7,21 +7,38 @@
  **/
 
 function solution(priorities, location) {
-    const ids = priorities.map((p, i) => i);
-    let count = 0;
+    const idx_map = new Map();
+    let answer = 0; //프로세스 실행횟수(순서)
 
-    while (true) {
-        const first = priorities.shift();
-        const first_id = ids.shift();
-        const max = Math.max(...priorities);
+    for (let i = 0; i < priorities.length; i++) {
+        idx_map.set(i, priorities[i]);
+    }
 
-        if (first < max) {
-            priorities.push(first);
-            ids.push(first_id);
+    while (idx_map.size > 0) {
+        let first_i, first_p;
+
+        for (const [i, p] of idx_map) {
+            first_i = i;
+            first_p = p;
+            break;
+        }
+
+        idx_map.delete(first_i);
+
+        let higher = false;
+        for (const [i, p] of idx_map) {
+            if (p > first_p) {
+                higher = true;
+            }
+        }
+
+        if (higher) {
+            //우선순위 더높은게 있으면
+            idx_map.set(first_i, first_p);
         } else {
-            count += 1;
-            if (first_id === location) {
-                return count;
+            answer++;
+            if (first_i === location) {
+                return answer;
             }
         }
     }

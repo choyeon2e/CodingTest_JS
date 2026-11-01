@@ -8,15 +8,15 @@
  **/
 
 function solution(clothes) {
-    const count = {};
+    const clothes_map = new Map();
     let answer = 1;
 
-    for (const [name, type] of clothes) {
-        count[type] = (count[type] || 0) + 1;
+    for (const c of clothes) {
+        clothes_map.set(c[1], (clothes_map.get(c[1]) || 0) + 1);
     }
 
-    for (const type in count) {
-        answer *= count[type] + 1;
+    for (const v of clothes_map.values()) {
+        answer *= v + 1;
     }
 
     return answer - 1;

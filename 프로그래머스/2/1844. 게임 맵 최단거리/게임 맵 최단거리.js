@@ -15,6 +15,7 @@ function in_range(n, m, r, c) {
 function bfs(n, m, maps) {
     const queue = [[1, 1]];
     const dist = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+
     dist[1][1] = 1;
     let head = 0;
 
@@ -28,8 +29,8 @@ function bfs(n, m, maps) {
 
             if (
                 in_range(n, m, nr, nc) &&
-                maps[nr - 1][nc - 1] === 1 &&
-                dist[nr][nc] === 0
+                dist[nr][nc] === 0 &&
+                maps[nr - 1][nc - 1] === 1
             ) {
                 dist[nr][nc] = dist[r][c] + 1;
                 queue.push([nr, nc]);
